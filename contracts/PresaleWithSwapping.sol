@@ -97,7 +97,7 @@ contract PresaleWithSwapping is Ownable {
     //to be conservative, we overestimate the amount of ETH  by 2%. the router will ultimately refund any extra ETH that is sent
     function findAmountETHToPay(uint256 amountToBuy) public view returns(uint256) {
         uint256 amountToPay = findAmountToPay(amountToBuy);
-        address[] memory swapPath; //WETH, tokenToPay
+        address[] memory swapPath = new address[](2); //WETH, tokenToPay
         swapPath[0] = router.WETH();
         swapPath[1] = address(tokenToPay);
         uint256[] memory amountsIn = router.getAmountsIn(amountToPay, swapPath);
@@ -179,7 +179,7 @@ contract PresaleWithSwapping is Ownable {
 	function _swapToPurchaseTokens(address buyer, uint256 amountETH, uint256 amountToBuy) internal {
         uint256 amountToPay = findAmountToPay(amountToBuy);
         require(tokenToPay.allowance(buyer, address(this)) >= amountToPay, "must approve the contract first");
-		address[] memory swapPath; //WETH, tokenToPay. assumes good liquidity for this pair
+	address[] memory swapPath = new address[](2); //WETH, tokenToPay. assumes good liquidity for this pair
         swapPath[0] = router.WETH();
         swapPath[1] = address(tokenToPay);
         //swap tokens for buyer, ensuring that they get the amount out needed to buy the tokens
