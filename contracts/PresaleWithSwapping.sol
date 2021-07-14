@@ -72,6 +72,8 @@ contract PresaleWithSwapping is Ownable {
         exchangeRateDivisor = 10**(IERC20Metadata(address(tokenForSale)).decimals());
 	}
 
+       receive() external payable {}
+
 	//PUBLIC FUNCTIONS
 	function saleStarted() public view returns(bool) {
 		return(block.timestamp >= saleStart);
@@ -138,16 +140,6 @@ contract PresaleWithSwapping is Ownable {
 		emit ExchangeRateSet(newExchangeRate);
 	}
 
-	function withdrawSaleProceeds(address dest) external onlyOwner {
-		uint256 toSend = tokenToPay.balanceOf(address(this));
-		tokenToPay.safeTransfer(dest, toSend);
-	}
-
-	function withdrawUnsoldTokens(address dest) external onlyOwner {
-		uint256 toSend = tokenForSale.balanceOf(address(this));
-		tokenForSale.safeTransfer(dest, toSend);
-	}
-
     function addToWhitelist(address[] calldata users) external onlyOwner {
         for(uint256 i = 0; i < users.length; i++) {
             whitelist[users[i]] = true;
@@ -192,6 +184,8 @@ contract PresaleWithSwapping is Ownable {
         swapPath[1] = address(tokenToPay);
         //swap tokens for buyer, ensuring that they get the amount out needed to buy the tokens
 		router.swapETHForExactTokens{value:amountETH}(amountToPay, swapPath, buyer, block.timestamp);
+        //send any extra ETH back to buyer
+        payable(buyer).transfer(address(this).balance);
 	}
 }
 
